@@ -3,7 +3,6 @@ package udpserver
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"net"
 	"sync"
@@ -14,22 +13,22 @@ import (
 )
 
 type Connection interface {
-	// ANetConnection is used to bridge the data structure of Router
-	// Only SendTo is implemented, always call SendTo to send back
-	// the data.
-	SendTo(buf []byte) error
+	// Connection is a UDP-connection interface
+	net.PacketConn
 
-	// LocalAddr returns the local address of the connection
+	// SendTo and AsyncWrite is called to send a UDP-packet
+	//
+	// Parameters:
+	//   - buf : bytes to send
 	//
 	// Returns:
-	//   - connection's local addr
-	LocalAddr() *net.UDPAddr
+	//   bytes sent and error (if error happens)
+	SendTo(buf []byte) (int, error)
 
-	// RemoteAddr returns the remote address of the connection
-	//
-	// Returns:
-	//   - connection's remote addr
-	RemoteAddr() *net.UDPAddr
+	AsyncWrite(buf []byte) (int, error)
+
+	// RemoteAddr returns the remote address of UDPClient/UDPServer
+	RemoteAddr() net.Addr
 }
 
 type Handler interface {
@@ -41,9 +40,6 @@ type Handler interface {
 	//   - buf: The packet need to handle, user should not modify the size of buf!
 	//   - sz: size of the buffer
 	//
-	// Returns:
-	//   - out: if out is nil, do nothing, otherwise udp server will send this byte buffer
-	//          back to the client, compatible with gnet
 	OnDatagram(srv Server, conn Connection, buf []byte, sz int)
 
 	// OnTimer is called every tick interval
@@ -72,6 +68,8 @@ type Server interface {
 }
 
 type UDPServer struct {
+	ctx        context.Context
+	cancel     context.CancelFunc
 	bufPool    *sync.Pool
 	workerPool *ants.Pool
 
@@ -82,11 +80,9 @@ type UDPServer struct {
 	conn       *net.UDPConn  // server socket
 	state      atomic.Int32  // server state
 	serverAddr *net.UDPAddr  // server address
-	ctx        context.Context
 	logger     *log.Logger
 
-	wg       sync.WaitGroup
-	stopChan chan struct{} // for task in pool
+	wg sync.WaitGroup
 }
 
 func (s *UDPServer) createWorkerPool() error {
@@ -98,7 +94,7 @@ func (s *UDPServer) createWorkerPool() error {
 
 	pool, err := ants.NewPool(s.workerPoolSize, ants.WithOptions(options),
 		ants.WithPanicHandler(func(v interface{}) {
-			s.logger.Printf(fmt.Sprintf("Task Panic: %v", v))
+			s.logger.Printf("Task Panic: %v", v)
 		}))
 
 	if err != nil {
@@ -155,7 +151,6 @@ func (s *UDPServer) init(address string) (e error) {
 		s.poolOwner = false
 	}
 
-	s.stopChan = make(chan struct{})
 	s.createBufferPool()
 	return nil
 }
@@ -168,8 +163,6 @@ func (s *UDPServer) startTimer(hdl Handler) {
 		for {
 			select {
 			case <-s.ctx.Done():
-				return
-			case <-s.stopChan:
 				return
 			case <-timer.C:
 				hdl.OnTimer(s)
@@ -197,23 +190,14 @@ func (s *UDPServer) Serve(address string, hdl Handler) (err error) {
 	s.startTimer(hdl)
 
 	go func() {
-		select {
-		case <-s.ctx.Done():
-			s.Stop()
-		case <-s.stopChan:
-			// someone stop the server, we can exit, too
-		}
+		<-s.ctx.Done()
+		s.Stop()
 	}()
 
 	for {
-		select {
-		case <-s.stopChan: // someone stop the server
-			return nil
-		default:
-		}
-
 		buf := s.getBuffer()
 		n, remote, err := s.conn.ReadFromUDP(buf)
+		s.logger.Printf("[UDPServer] recvfrom(%v), %v", remote, buf[:n])
 
 		if err != nil {
 			s.putBuffer(buf)
@@ -235,21 +219,22 @@ func (s *UDPServer) Serve(address string, hdl Handler) (err error) {
 		}
 
 		s.wg.Add(1)
-		c := &udpConnection{
-			conn: s.conn,
-			addr: remote,
+		conn := &udpConnection{
+			s.conn,
+			remote,
 		}
+
 		err = s.workerPool.Submit(func() {
 			defer s.wg.Done()
 			defer s.putBuffer(buf)
 
 			select {
-			case <-s.stopChan:
+			case <-s.ctx.Done():
 				return
 			default:
 			}
 
-			hdl.OnDatagram(s, c, buf[:n], n)
+			hdl.OnDatagram(s, conn, buf[:n], n)
 		})
 
 		if err != nil {
@@ -275,12 +260,12 @@ func (s *UDPServer) Stop() (err error) {
 		return ErrServerNotStart
 	}
 
-	close(s.stopChan)
+	s.cancel()
 
 	// exit gracefully, wait for all the tasks to finish
-	// after closing the stopChan, only limited new tasks will be
+	// after canceling the context, only limited new tasks will be
 	// delivered to the pool, because if server finds out that
-	// the stopChan is closed, it will exit. So wg.Wait() will
+	// the context is done, it will exit. So wg.Wait() will
 	// always return without waiting for a long time.
 	s.wg.Wait()
 
@@ -350,8 +335,10 @@ func (s *UDPServer) checkOptions(opts *Options) error {
 }
 
 func NewUDPServer(ctx context.Context, option ...Option) Server {
+	subCtx, cancel := context.WithCancel(ctx)
 	server := &UDPServer{
-		ctx: ctx,
+		ctx:    subCtx,
+		cancel: cancel,
 	}
 	server.state.Store(serverStopped)
 	options := loadOptions(option...)

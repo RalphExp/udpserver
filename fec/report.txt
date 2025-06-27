@@ -1,0 +1,126 @@
+Running tool: go test -timeout 30s -run ^TestSendRecvOneByOne$ github.com/ralphexp/udpserver/fec
+
+=== RUN   TestSendRecvOneByOne
+2025/07/03 17:32:32 [UDPServer] tick: 1s, antSize: 1048576
+2025/07/03 17:32:32 [UDPServer]: listen on 127.0.0.1:10001
+2025/07/03 17:32:32 sendto[client] 127.0.0.1:10001 => [104 101 108 108 111 48]
+2025/07/03 17:32:32 FecPacket[client.d]: seqid(0), flag(f1), data([0 0 0 0 241 0 8 0 104 101 108 108 111 48])
+2025/07/03 17:32:32 parities[client]: 0
+2025/07/03 17:32:32 reading data from session
+2025/07/03 17:32:32 [UDPServer] recvfrom(127.0.0.1:58082), [0 0 0 0 241 0 8 0 104 101 108 108 111 48]
+2025/07/03 17:32:32 [FECHandler] recvfrom: 127.0.0.1:58082 => ([0 0 0 0 241 0 8 0 104 101 108 108 111 48]), 14
+2025/07/03 17:32:32 artcInput[server], flag(f1) [0 0 0 0 241 0 8 0 104 101 108 108 111 48]
+2025/07/03 17:32:32 recovered[server] 0 packets
+2025/07/03 17:32:32 ******recvfrom 127.0.0.1:58082: [104 101 108 108 111 48]******
+2025/07/03 17:32:32 sendto[server] 127.0.0.1:58082 => [104 101 108 108 111 48]
+2025/07/03 17:32:32 FecPacket[server.d]: seqid(0), flag(f1), data([0 0 0 0 241 0 8 0 104 101 108 108 111 48])
+2025/07/03 17:32:32 parities[server]: 0
+2025/07/03 17:32:32 artcInput[client], flag(f1) [0 0 0 0 241 0 8 0 104 101 108 108 111 48]
+2025/07/03 17:32:32 recovered[client] 0 packets
+2025/07/03 17:32:32 append[client]: flag(f1), [0 0 0 0 241 0 8 0 104 101 108 108 111 48]
+2025/07/03 17:32:32 (client) read 6 bytes, [104 101 108 108 111 48]
+    sess_test.go:67: got hello0
+2025/07/03 17:32:32 sendto[client] 127.0.0.1:10001 => [104 101 108 108 111 49]
+2025/07/03 17:32:32 FecPacket[client.d]: seqid(1), flag(f1), data([1 0 0 0 241 0 8 0 104 101 108 108 111 49])
+2025/07/03 17:32:32 parities[client]: 0
+2025/07/03 17:32:32 reading data from session
+2025/07/03 17:32:32 [UDPServer] recvfrom(127.0.0.1:58082), [1 0 0 0 241 0 8 0 104 101 108 108 111 49]
+2025/07/03 17:32:32 [FECHandler] recvfrom: 127.0.0.1:58082 => ([1 0 0 0 241 0 8 0 104 101 108 108 111 49]), 14
+2025/07/03 17:32:32 artcInput[server], flag(f1) [1 0 0 0 241 0 8 0 104 101 108 108 111 49]
+2025/07/03 17:32:32 recovered[server] 0 packets
+2025/07/03 17:32:32 ******recvfrom 127.0.0.1:58082: [104 101 108 108 111 49]******
+2025/07/03 17:32:32 sendto[server] 127.0.0.1:58082 => [104 101 108 108 111 49]
+2025/07/03 17:32:32 FecPacket[server.d]: seqid(1), flag(f1), data([1 0 0 0 241 0 8 0 104 101 108 108 111 49])
+2025/07/03 17:32:32 parities[server]: 0
+2025/07/03 17:32:32 artcInput[client], flag(f1) [1 0 0 0 241 0 8 0 104 101 108 108 111 49]
+2025/07/03 17:32:32 recovered[client] 0 packets
+2025/07/03 17:32:32 append[client]: flag(f1), [1 0 0 0 241 0 8 0 104 101 108 108 111 49]
+2025/07/03 17:32:32 (client) read 6 bytes, [104 101 108 108 111 49]
+    sess_test.go:67: got hello1
+2025/07/03 17:32:32 sendto[client] 127.0.0.1:10001 => [104 101 108 108 111 50]
+2025/07/03 17:32:32 FecPacket[client.d]: seqid(2), flag(f1), data([2 0 0 0 241 0 8 0 104 101 108 108 111 50])
+2025/07/03 17:32:32 parities[client]: 0
+2025/07/03 17:32:32 reading data from session
+2025/07/03 17:32:32 [UDPServer] recvfrom(127.0.0.1:58082), [2 0 0 0 241 0 8 0 104 101 108 108 111 50]
+2025/07/03 17:32:32 [FECHandler] recvfrom: 127.0.0.1:58082 => ([2 0 0 0 241 0 8 0 104 101 108 108 111 50]), 14
+2025/07/03 17:32:32 artcInput[server], flag(f1) [2 0 0 0 241 0 8 0 104 101 108 108 111 50]
+2025/07/03 17:32:32 recovered[server] 0 packets
+2025/07/03 17:32:32 ******recvfrom 127.0.0.1:58082: [104 101 108 108 111 50]******
+2025/07/03 17:32:32 sendto[server] 127.0.0.1:58082 => [104 101 108 108 111 50]
+2025/07/03 17:32:32 FecPacket[server.d]: seqid(2), flag(f1), data([2 0 0 0 241 0 8 0 104 101 108 108 111 50])
+2025/07/03 17:32:32 parities[server]: 0
+2025/07/03 17:32:32 artcInput[client], flag(f1) [2 0 0 0 241 0 8 0 104 101 108 108 111 50]
+2025/07/03 17:32:32 recovered[client] 0 packets
+2025/07/03 17:32:32 append[client]: flag(f1), [2 0 0 0 241 0 8 0 104 101 108 108 111 50]
+2025/07/03 17:32:32 (client) read 6 bytes, [104 101 108 108 111 50]
+    sess_test.go:67: got hello2
+=== Client Sends Hello3 to Server ====
+2025/07/03 17:32:32 sendto[client] 127.0.0.1:10001 => [104 101 108 108 111 51]
+2025/07/03 17:32:32 FecPacket[client.d]: seqid(3), flag(f1), data([3 0 0 0 241 0 8 0 104 101 108 108 111 51])
+2025/07/03 17:32:32 parities[client]: 2
+2025/07/03 17:32:32 FecPacket[client.p]: seqid(4), flag(f2), data([4 0 0 0 242 0 8 0 104 101 108 108 111 52])
+2025/07/03 17:32:32 FecPacket[client.p]: seqid(5), flag(f2), data([5 0 0 0 242 0 8 0 104 101 108 108 111 53])
+======================================
+2025/07/03 17:32:32 reading data from session
+
+==== Server received 3 packets (data:1 parity:2)
+2025/07/03 17:32:32 [UDPServer] recvfrom(127.0.0.1:58082), [3 0 0 0 241 0 8 0 104 101 108 108 111 51]
+2025/07/03 17:32:32 [UDPServer] recvfrom(127.0.0.1:58082), [4 0 0 0 242 0 8 0 104 101 108 108 111 52]
+2025/07/03 17:32:32 [UDPServer] recvfrom(127.0.0.1:58082), [5 0 0 0 242 0 8 0 104 101 108 108 111 53]
+
+==== Server handles parity data first `seqid(5) flag(f2)` =======
+2025/07/03 17:32:32 [FECHandler] recvfrom: 127.0.0.1:58082 => ([5 0 0 0 242 0 8 0 104 101 108 108 111 53]), 14
+2025/07/03 17:32:32 artcInput[server], flag(f2) [5 0 0 0 242 0 8 0 104 101 108 108 111 53]
+2025/07/03 17:32:32 recovered[server] 1 packets
+2025/07/03 17:32:32 recovered[server]: [8 0 104 101 108 108 111 51]
+2025/07/03 17:32:32 ******recvfrom 127.0.0.1:58082: [104 101 108 108 111 51]******
+===== Server recoverd seqid(3) => Hello3 ========
+2025/07/03 17:32:32 sendto[server] 127.0.0.1:58082 => [104 101 108 108 111 51]
+===== Server think it's client send hello3 to it, but it is recovered from parity!======
+2025/07/03 17:32:32 FecPacket[server.d]: seqid(3), flag(f1), data([3 0 0 0 241 0 8 0 104 101 108 108 111 51])
+2025/07/03 17:32:32 parities[server]: 2
+2025/07/03 17:32:32 FecPacket[server.p]: seqid(4), flag(f2), data([4 0 0 0 242 0 8 0 104 101 108 108 111 52])
+2025/07/03 17:32:32 FecPacket[server.p]: seqid(5), flag(f2), data([5 0 0 0 242 0 8 0 104 101 108 108 111 53])
+2025/07/03 17:32:32 [FECHandler] recvfrom: 127.0.0.1:58082 => ([4 0 0 0 242 0 8 0 104 101 108 108 111 52]), 14
+2025/07/03 17:32:32 artcInput[server], flag(f2) [4 0 0 0 242 0 8 0 104 101 108 108 111 52]
+2025/07/03 17:32:32 recovered[server] 0 packets
+2025/07/03 17:32:32 [FECHandler] recvfrom: 127.0.0.1:58082 => ([3 0 0 0 241 0 8 0 104 101 108 108 111 51]), 14
+2025/07/03 17:32:32 artcInput[server], flag(f1) [3 0 0 0 241 0 8 0 104 101 108 108 111 51]
+2025/07/03 17:32:32 recovered[server] 0 packets
+2025/07/03 17:32:32 ******recvfrom 127.0.0.1:58082: [104 101 108 108 111 51]******
+2025/07/03 17:32:32 sendto[server] 127.0.0.1:58082 => [104 101 108 108 111 51]
+================ Now server received the same packet twice ! ==============
+2025/07/03 17:32:32 artcInput[client], flag(f1) [3 0 0 0 241 0 8 0 104 101 108 108 111 51]
+2025/07/03 17:32:32 recovered[client] 0 packets
+2025/07/03 17:32:32 FecPacket[server.d]: seqid(6), flag(f1), data([6 0 0 0 241 0 8 0 104 101 108 108 111 51])
+2025/07/03 17:32:32 append[client]: flag(f1), [3 0 0 0 241 0 8 0 104 101 108 108 111 51]
+2025/07/03 17:32:32 artcInput[client], flag(f2) [4 0 0 0 242 0 8 0 104 101 108 108 111 52]
+2025/07/03 17:32:32 recovered[client] 0 packets
+2025/07/03 17:32:32 parities[server]: 0
+2025/07/03 17:32:32 artcInput[client], flag(f2) [5 0 0 0 242 0 8 0 104 101 108 108 111 53]
+2025/07/03 17:32:32 recovered[client] 0 packets
+2025/07/03 17:32:32 (client) read 6 bytes, [104 101 108 108 111 51]
+    sess_test.go:67: got hello3
+2025/07/03 17:32:32 sendto[client] 127.0.0.1:10001 => [104 101 108 108 111 52]
+2025/07/03 17:32:32 FecPacket[client.d]: seqid(6), flag(f1), data([6 0 0 0 241 0 8 0 104 101 108 108 111 52])
+2025/07/03 17:32:32 parities[client]: 0
+2025/07/03 17:32:32 reading data from session
+2025/07/03 17:32:32 [UDPServer] recvfrom(127.0.0.1:58082), [6 0 0 0 241 0 8 0 104 101 108 108 111 52]
+2025/07/03 17:32:32 [FECHandler] recvfrom: 127.0.0.1:58082 => ([6 0 0 0 241 0 8 0 104 101 108 108 111 52]), 14
+2025/07/03 17:32:32 artcInput[client], flag(f1) [6 0 0 0 241 0 8 0 104 101 108 108 111 51]
+2025/07/03 17:32:32 recovered[client] 0 packets
+2025/07/03 17:32:32 append[client]: flag(f1), [6 0 0 0 241 0 8 0 104 101 108 108 111 51]
+2025/07/03 17:32:32 (client) read 6 bytes, [104 101 108 108 111 51]
+    sess_test.go:63: expected hello4 but got hello3
+2025/07/03 17:32:32 artcInput[server], flag(f1) [6 0 0 0 241 0 8 0 104 101 108 108 111 52]
+2025/07/03 17:32:32 recovered[server] 0 packets
+2025/07/03 17:32:32 ******recvfrom 127.0.0.1:58082: [104 101 108 108 111 52]******
+2025/07/03 17:32:32 sendto[server] 127.0.0.1:58082 => [104 101 108 108 111 52]
+2025/07/03 17:32:32 FecPacket[server.d]: seqid(7), flag(f1), data([7 0 0 0 241 0 8 0 104 101 108 108 111 52])
+2025/07/03 17:32:32 parities[server]: 0
+2025/07/03 17:32:32 [UDPServer] recvfrom(<nil>), []
+2025/07/03 17:32:32 [UDPServer]: 127.0.0.1:10001 stopped
+--- FAIL: TestSendRecvOneByOne (0.10s)
+FAIL
+FAIL    github.com/ralphexp/udpserver/fec       0.351s
+
