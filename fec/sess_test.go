@@ -43,7 +43,7 @@ func dialEcho(port int) (*FECSession, error) {
 	return sess, err
 }
 
-func TestSendRecvOneByOne(t *testing.T) {
+func TestSendRecv(t *testing.T) {
 	port := int(atomic.AddUint32(&baseport, 1))
 	re := regexp.MustCompile(`hello(\d+)`)
 
@@ -58,15 +58,16 @@ func TestSendRecvOneByOne(t *testing.T) {
 	}
 
 	const N = 100
+
 	buf := make([]byte, 16)
-	for i := 0; i < N; i++ {
+	for i := range N {
 		msg := fmt.Sprintf("hello%v", i)
 		cli.Write([]byte(msg))
 		for {
 			if n, err := cli.Read(buf); err == nil {
 				m := re.FindStringSubmatch(string(buf[:n]))
 				if len(m) != 2 {
-					t.Errorf("expected hello\\d but got %s", buf[:n])
+					t.Errorf(`expected hello\d but got %s`, buf[:n])
 					t.Fail()
 					break
 				}

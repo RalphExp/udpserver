@@ -38,7 +38,8 @@ type FECSession struct {
 	writeDeadLine time.Time
 	die           chan struct{}
 	dieOnce       sync.Once
-	rqLock        sync.Mutex    // for readqueu
+	rqLock        sync.Mutex // for readqueu
+	decLock       sync.Mutex
 	chReadEvent   chan struct{} // notify Read() can be called without blocking
 	chWriteEvent  chan struct{} // notify Write() can be called without blocking
 }
@@ -178,6 +179,8 @@ func (sess *FECSession) Close() error {
 		return nil
 	}
 
+	// puts the buffers back to the pool
+	sess.fecDecoder.release()
 	atomic.AddUint64(&DefaultSnmp.CurrEstab, ^uint64(0))
 	// this is from NewFecSession, so close the socket
 	if !sess.fromServer {
@@ -238,7 +241,10 @@ func (sess *FECSession) artcInput(data []byte, sz int) {
 			fecParityShards++
 		}
 
+		sess.decLock.Lock()
 		recovers := sess.fecDecoder.Decode(f)
+		sess.decLock.Unlock()
+
 		log.Printf("recovered[%s] %d packets", sess.Role(), len(recovers))
 		if fecFlag == TypeData {
 			if sess.server != nil {
