@@ -1,11 +1,10 @@
-module github.com/ralphexp/udpserver
+module github.com/ralphexp/udp
 
 go 1.23
 
 require (
 	github.com/klauspost/reedsolomon v1.12.4
 	github.com/panjf2000/ants/v2 v2.4.4
-	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.4.0
 )
 

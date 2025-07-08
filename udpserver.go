@@ -1,4 +1,4 @@
-package udpserver
+package udp
 
 import (
 	"context"
@@ -15,17 +15,6 @@ import (
 type Connection interface {
 	// Connection is a UDP-connection interface
 	net.PacketConn
-
-	// SendTo and AsyncWrite is called to send a UDP-packet
-	//
-	// Parameters:
-	//   - buf : bytes to send
-	//
-	// Returns:
-	//   bytes sent and error (if error happens)
-	SendTo(buf []byte) (int, error)
-
-	AsyncWrite(buf []byte) (int, error)
 
 	// RemoteAddr returns the remote address of UDPClient/UDPServer
 	RemoteAddr() net.Addr

@@ -1,4 +1,4 @@
-package udpserver
+package udp
 
 import (
 	"log"

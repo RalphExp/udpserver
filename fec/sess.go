@@ -11,7 +11,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/ralphexp/udpserver"
+	"github.com/ralphexp/udp"
 )
 
 const (
@@ -19,9 +19,9 @@ const (
 	maxReadQueueSize         = 1024 * 1024
 	maxWriteQueueSize        = 1024 * 1024
 	clientCloseChanSize      = 1024 // buffered channel
-	artcV5HeaderSize         = 6
-	maxFECEncodeLatency      = 500 // 500ms
-	defaultFECEncoderTimeout = 500 // ms
+	artcV5HeaderSize         = 16   // magic(4) + fecseqid(4) + fectype(2) + fectype(2)
+	maxFECEncodeLatency      = 500  // 500ms
+	defaultFECEncoderTimeout = 500  // ms
 )
 
 // FEC Client
@@ -29,7 +29,7 @@ type FECSession struct {
 	conn          net.PacketConn
 	fromServer    bool // true if we created conn internally, false if provided by caller
 	server        *FECServer
-	hdl           udpserver.Handler // udp callback handler
+	hdl           udp.Handler // udp callback handler
 	readQueue     [][]byte
 	remote        net.Addr
 	fecEncoder    *FecEncoder // if fecEncoder is null, then FEC is disabled
@@ -48,7 +48,7 @@ type FECSession struct {
 type FECServer struct {
 	ctx          context.Context
 	cancel       context.CancelFunc
-	server       udpserver.Server
+	server       udp.Server
 	dataShards   int
 	parityShards int
 	fecHdl       *fecHandler
@@ -353,7 +353,7 @@ func DialWithOptions(raddr string, dataShards, parityShards int) (*FECSession, e
 	return newFECSession(dataShards, parityShards, conn, rmtaddr, nil), nil
 }
 
-func NewFECServer(ctx context.Context, dataShards, parityShards int, option ...udpserver.Option) *FECServer {
+func NewFECServer(ctx context.Context, dataShards, parityShards int, option ...udp.Option) *FECServer {
 	subCtx, cancel := context.WithCancel(ctx)
 
 	fecServer := &FECServer{
@@ -363,16 +363,16 @@ func NewFECServer(ctx context.Context, dataShards, parityShards int, option ...u
 		parityShards: parityShards,
 	}
 
-	fecServer.server = udpserver.NewUDPServer(subCtx, option...)
+	fecServer.server = udp.NewUDPServer(subCtx, option...)
 	return fecServer
 }
 
 type fecHandler struct {
 	server *FECServer
-	udpHdl udpserver.Handler
+	udpHdl udp.Handler
 }
 
-func (hdl *fecHandler) OnDatagram(srv udpserver.Server, conn udpserver.Connection, data []byte, sz int) {
+func (hdl *fecHandler) OnDatagram(srv udp.Server, conn udp.Connection, data []byte, sz int) {
 	log.Printf("[FECHandler] recvfrom: %v => (%v), %v\n", conn.RemoteAddr().String(), data, sz)
 
 	// check the length first
@@ -401,13 +401,13 @@ func (hdl *fecHandler) OnDatagram(srv udpserver.Server, conn udpserver.Connectio
 	sess.(*FECSession).artcInput(fecPacket[:sz], sz)
 }
 
-func (hdl *fecHandler) OnTimer(srv udpserver.Server) {
+func (hdl *fecHandler) OnTimer(srv udp.Server) {
 	if hdl.udpHdl != nil {
 		hdl.udpHdl.OnTimer(srv)
 	}
 }
 
-func (s *FECServer) Serve(address string, hdl udpserver.Handler) error {
+func (s *FECServer) Serve(address string, hdl udp.Handler) error {
 	s.clientClose = make(chan string, clientCloseChanSize)
 	s.fecHdl = &fecHandler{
 		server: s,

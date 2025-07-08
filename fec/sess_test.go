@@ -10,19 +10,19 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ralphexp/udpserver"
+	"github.com/ralphexp/udp"
 )
 
 var baseport = uint32(10000)
 
 type echoHandler struct{}
 
-func (hdl *echoHandler) OnTimer(server udpserver.Server) {}
-func (hdl *echoHandler) OnDatagram(server udpserver.Server, conn udpserver.Connection, buf []byte, sz int) {
+func (hdl *echoHandler) OnTimer(server udp.Server) {}
+func (hdl *echoHandler) OnDatagram(server udp.Server, conn udp.Connection, buf []byte, sz int) {
 	// echo to client, note that conn is a FECSession!!!
 
 	log.Printf("******recvfrom %v: %v******\n", conn.RemoteAddr().String(), buf[:sz])
-	conn.SendTo(buf)
+	conn.WriteTo(buf, conn.RemoteAddr())
 }
 
 func echoServer(port int) *FECServer {
@@ -45,7 +45,7 @@ func dialEcho(port int) (*FECSession, error) {
 
 func TestSendRecv(t *testing.T) {
 	port := int(atomic.AddUint32(&baseport, 1))
-	re := regexp.MustCompile(`hello(\d+)`)
+	re := regexp.MustCompile(`HelloWorldARTCv5(\d+)`)
 
 	server := echoServer(port)
 	defer server.Stop()
@@ -59,15 +59,15 @@ func TestSendRecv(t *testing.T) {
 
 	const N = 100
 
-	buf := make([]byte, 16)
+	buf := make([]byte, 24)
 	for i := range N {
-		msg := fmt.Sprintf("hello%v", i)
+		msg := fmt.Sprintf("HelloWorldARTCv5%v", i)
 		cli.Write([]byte(msg))
 		for {
 			if n, err := cli.Read(buf); err == nil {
 				m := re.FindStringSubmatch(string(buf[:n]))
 				if len(m) != 2 {
-					t.Errorf(`expected hello\d but got %s`, buf[:n])
+					t.Errorf(`expected HelloWorldARTCv5\d but got %s`, buf[:n])
 					t.Fail()
 					break
 				}

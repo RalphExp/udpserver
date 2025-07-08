@@ -1,4 +1,4 @@
-package udpserver
+package udp
 
 import (
 	"context"
@@ -18,7 +18,7 @@ type UDPHandler struct {
 
 func (h *UDPHandler) OnDatagram(s Server,
 	c Connection, buf []byte, sz int) {
-	c.SendTo(append([]byte("echo:"), buf[:sz]...))
+	c.WriteTo(append([]byte("echo:"), buf[:sz]...), c.RemoteAddr())
 }
 
 func (h *UDPHandler) OnTimer(s Server) {
@@ -30,7 +30,7 @@ type UDPHandler2 struct {
 
 // Test Connection
 func (*UDPHandler2) OnDatagram(s Server, conn Connection, buf []byte, sz int) {
-	conn.SendTo(buf[:sz])
+	conn.WriteTo(buf[:sz], conn.RemoteAddr())
 }
 
 func (*UDPHandler2) OnTimer(s Server) {}
